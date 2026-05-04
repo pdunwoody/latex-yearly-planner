@@ -108,12 +108,16 @@ func (m *Month) EndTable(typ interface{}) string {
 	return `\end{tabular}`
 }
 
-func (m *Month) Breadcrumb() string {
-	return header.Items{
-		header.NewIntItem(m.Year.Number),
-		header.NewTextItem("Q" + strconv.Itoa(m.Quarter.Number)),
-		header.NewMonthItem(m.Month).Ref(),
-	}.Table(true)
+func (m *Month) Breadcrumb(quarterly bool) string {
+	items := header.Items{header.NewIntItem(m.Year.Number)}
+
+	if quarterly {
+		items = append(items, header.NewTextItem("Q"+strconv.Itoa(m.Quarter.Number)))
+	}
+
+	items = append(items, header.NewMonthItem(m.Month).Ref())
+
+	return items.Table(true)
 }
 
 func (m *Month) PrevNext() header.Items {

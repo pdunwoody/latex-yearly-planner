@@ -22,7 +22,7 @@ func Quarterly(cfg config.Config, tpls []string) (page.Modules, error) {
 			Body: map[string]interface{}{
 				"Year":         year,
 				"Quarter":      quarter,
-				"Breadcrumb":   quarter.Breadcrumb(),
+				"Breadcrumb":   quarter.Breadcrumb(cfg.Pages.QuarterlyEnabled()),
 				"HeadingMOS":   quarter.HeadingMOS(),
 				"SideQuarters": year.SideQuarters(quarter.Number),
 				"SideMonths":   year.SideMonths(0),

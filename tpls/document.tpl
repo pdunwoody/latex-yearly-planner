@@ -31,7 +31,7 @@
 
 \geometry{paperwidth={{.Cfg.Layout.Paper.Width}}, paperheight={{.Cfg.Layout.Paper.Height}}}
 \geometry{
-  top={{.Cfg.Layout.Paper.Margin.Top}},
+  top=1mm,
   bottom={{.Cfg.Layout.Paper.Margin.Bottom}},
   left={{.Cfg.Layout.Paper.Margin.Left}},
   right={{.Cfg.Layout.Paper.Margin.Right}},

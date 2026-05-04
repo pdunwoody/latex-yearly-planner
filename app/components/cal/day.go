@@ -55,7 +55,7 @@ func (d Day) WeekLink() string {
 	return hyper.Link(d.ref(), strconv.Itoa(d.Time.Day())+", "+d.Time.Weekday().String())
 }
 
-func (d Day) Breadcrumb(prefix string, leaf string, shorten bool) string {
+func (d Day) Breadcrumb(prefix string, leaf string, shorten bool, quarterly bool) string {
 	wpref := ""
 	_, wn := d.Time.ISOWeek()
 	if wn > 50 && d.Time.Month() == time.January {
@@ -70,10 +70,14 @@ func (d Day) Breadcrumb(prefix string, leaf string, shorten bool) string {
 	dayItem := header.NewTextItem(d.Time.Format(dayLayout)).RefText(d.Time.Format(time.RFC3339))
 	items := header.Items{
 		header.NewIntItem(d.Time.Year()),
-		header.NewTextItem("Q" + strconv.Itoa(int(math.Ceil(float64(d.Time.Month())/3.)))),
-		header.NewMonthItem(d.Time.Month()).Shorten(shorten),
-		header.NewTextItem("Week " + strconv.Itoa(wn)).RefPrefix(wpref),
 	}
+
+	if quarterly {
+		items = append(items, header.NewTextItem("Q"+strconv.Itoa(int(math.Ceil(float64(d.Time.Month())/3.)))))
+	}
+
+	items = append(items, header.NewMonthItem(d.Time.Month()).Shorten(shorten))
+	items = append(items, header.NewTextItem("Week "+strconv.Itoa(wn)).RefPrefix(wpref))
 
 	if len(leaf) > 0 {
 		items = append(items, dayItem, header.NewTextItem(leaf).RefText(prefix+d.ref()).Ref(true))

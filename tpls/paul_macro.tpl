@@ -1,0 +1,15 @@
+\newcommand{\myPaulGrid}[2]{%
+  \begingroup
+  \setlength{\unitlength}{5mm}%
+  \color{gray!40}%
+  \begin{picture}(#2,#1)
+    \linethickness{0.2pt}%
+    \multiput(0,0)(1,0){\numexpr#2+1\relax}{\line(0,1){#1}}%
+    \multiput(0,0)(0,1){\numexpr#1+1\relax}{\line(1,0){#2}}%
+    \color{gray!70}%
+    \linethickness{0.4pt}%
+    \multiput(0,0)(4,0){\numexpr#2/4+1\relax}{\line(0,1){#1}}%
+    \multiput(0,0)(0,4){\numexpr#1/4+1\relax}{\line(1,0){#2}}%
+  \end{picture}%
+  \endgroup
+}

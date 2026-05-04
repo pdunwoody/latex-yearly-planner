@@ -26,16 +26,19 @@ func NewYear(wd time.Weekday, year int) *Year {
 	return out
 }
 
-func (y Year) Breadcrumb() string {
-	return header.Items{
-		header.NewIntItem(y.Number).Ref(),
-		header.NewItemsGroup(
+func (y Year) Breadcrumb(includeQuarterly bool) string {
+	items := header.Items{header.NewIntItem(y.Number).Ref()}
+
+	if includeQuarterly {
+		items = append(items, header.NewItemsGroup(
 			header.NewTextItem("Q1"),
 			header.NewTextItem("Q2"),
 			header.NewTextItem("Q3"),
 			header.NewTextItem("Q4"),
-		),
-	}.Table(true)
+		))
+	}
+
+	return items.Table(true)
 }
 
 func (y Year) SideQuarters(sel ...int) []header.CellItem {

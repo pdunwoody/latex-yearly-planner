@@ -51,6 +51,18 @@ func (r Pages) WeeklyEnabled() bool {
 	return false
 }
 
+func (r Pages) QuarterlyEnabled() bool {
+	for _, s := range r {
+		for _, block := range s.RenderBlocks {
+			if block.FuncName == "quarterly" {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 type RenderBlock struct {
 	FuncName string
 	Tpls     []string
@@ -88,7 +100,8 @@ type Numbers struct {
 	NotesOnPage         int
 	DotHeightFull       int
 	DotWidthFull        int
-	DotWidthTwoThirds   int
+	DotWidthTwoThirds   float64
+	ScheduleLineHeight  float64
 }
 
 type Paper struct {

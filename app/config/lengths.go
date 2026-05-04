@@ -5,6 +5,7 @@ type Lengths struct {
 	LineThicknessDefault    string
 	LineThicknessThick      string
 	LineHeightButLine       string
+	ScheduleLineHeight      string
 	TwoColSep               string
 	TriColSep               string
 	FiveColSep              string

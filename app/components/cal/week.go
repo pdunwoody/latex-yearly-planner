@@ -146,13 +146,19 @@ func (w *Week) weekNumber() int {
 	return wn
 }
 
-func (w *Week) Breadcrumb() string {
-	return header.Items{
+func (w *Week) Breadcrumb(quarterly bool) string {
+	items := header.Items{
 		header.NewIntItem(w.Year.Number),
-		w.QuartersBreadcrumb(),
-		w.MonthsBreadcrumb(),
-		header.NewTextItem("Week " + strconv.Itoa(w.weekNumber())).RefText(w.ref()).Ref(true),
-	}.Table(true)
+	}
+
+	if quarterly {
+		items = append(items, w.QuartersBreadcrumb())
+	}
+
+	items = append(items, w.MonthsBreadcrumb())
+	items = append(items, header.NewTextItem("Week "+strconv.Itoa(w.weekNumber())).RefText(w.ref()).Ref(true))
+
+	return items.Table(true)
 }
 
 func (w *Week) monthOverlap() bool {

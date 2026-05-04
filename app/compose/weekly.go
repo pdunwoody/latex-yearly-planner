@@ -17,7 +17,7 @@ func Weekly(cfg config.Config, tpls []string) (page.Modules, error) {
 			Body: map[string]interface{}{
 				"Year":         year,
 				"Week":         week,
-				"Breadcrumb":   week.Breadcrumb(),
+				"Breadcrumb":   week.Breadcrumb(cfg.Pages.QuarterlyEnabled()),
 				"HeadingMOS":   week.HeadingMOS(),
 				"SideQuarters": year.SideQuarters(week.Quarters.Numbers()...),
 				"SideMonths":   year.SideMonths(week.Months.Months()...),

@@ -22,11 +22,13 @@
 \newcommand{\myNumDailyDiaryLog}{ {{- $numbers.DailyDiaryLog -}} }
 \newcommand{\myNumDailyPersonal}{ {{- $numbers.DailyPersonal -}} }
 \newcommand{\myNumTodoLinesInTodoPage}{ {{- $numbers.TodoLinesInTodoPage -}} }
+\newcommand{\myNumScheduleLineHeight}{ {{- $numbers.ScheduleLineHeight -}} }
 
 \newlength{\myLenTabColSep}
 \newlength{\myLenLineThicknessDefault}
 \newlength{\myLenLineThicknessThick}
 \newlength{\myLenLineHeightButLine}
+\newlength{\myLenScheduleLineHeight}
 \newlength{\myLenTwoColSep}
 \newlength{\myLenTwoCol}
 \newlength{\myLenTriColSep}
@@ -44,6 +46,9 @@
 \setlength{\myLenLineThicknessDefault}{ {{- $lengths.LineThicknessDefault -}} }
 \setlength{\myLenLineThicknessThick}{ {{- $lengths.LineThicknessThick -}} }
 \setlength{\myLenLineHeightButLine}{ {{- $lengths.LineHeightButLine -}} }
+{{- $schedLineHeight := $numbers.ScheduleLineHeight -}}
+{{- if eq $schedLineHeight 0.0 }}{{- $schedLineHeight = 6.0 }}{{- end -}}
+\setlength{\myLenScheduleLineHeight}{ \dimexpr{{- $schedLineHeight -}}mm-.4pt\relax }
 \setlength{\myLenTwoColSep}{ {{- $lengths.TwoColSep -}} }
 \setlength{\myLenTwoCol}{\dimexpr.5\linewidth-.5\myLenTwoColSep}
 \setlength{\myLenFiveColSep}{ {{- $lengths.FiveColSep -}} }
@@ -66,6 +71,7 @@
 \newcommand{\myLineThick}{\hrule width \linewidth height \myLenLineThicknessThick}
 
 \newcommand{\myLineHeightButLine}{\myMinLineHeight{\myLenLineHeightButLine}}
+\newcommand{\myScheduleLineHeight}{\myMinLineHeight{\myLenScheduleLineHeight}}
 \newcommand{\myUnderline}[1]{#1\vskip1mm\myLineThick\par}
 \newcommand{\myLineColor}[1]{\textcolor{#1}{\myLinePlain}}
 \newcommand{\myLineGray}{\myLineColor{\myColorGray}}
@@ -75,11 +81,25 @@
 
 \newcommand{\myTodo}{\myLineHeightButLine$\square$\myLinePlain}
 \newcommand{\myTodoLineGray}{\myLineHeightButLine$\square$\myLineGray}
+\newcommand{\myTodoLineGrayDouble}{\myLineHeightButLine$\square$\myLineGray\myLineHeightButLine\myLineGray}
 
 \newcommand{\myDotGrid}[2]{\leavevmode\multido{\dC=0mm+5mm}{#1}{\multido{\dR=0mm+5mm}{#2}{\put(\dR,\dC){\circle*{0.1}}}}}
 
 \newcommand{\myMash}[3][]{
   {{- if $.Cfg.Dotted -}} \vskip\myLenLineHeightButLine#1\myDotGrid{#2}{#3} {{- else -}} \Repeat{#2}{\myLineGrayVskipTop} {{- end -}}
+}
+
+\newcommand{\myPaulGrid}[2]{%
+  \begingroup
+  \begin{tikzpicture}[x=5mm,y=5mm]
+    \pgfmathtruncatemacro{\gridwidth}{#2}
+    \pgfmathtruncatemacro{\gridheight}{#1}
+    \foreach \x in {0,...,\gridwidth} { \draw[gray!60, line width=0.2pt] (\x,0) -- (\x,\gridheight); }
+    \foreach \y in {0,...,\gridheight} { \draw[gray!60, line width=0.2pt] (0,\y) -- (\gridwidth,\y); }
+    \foreach \x in {0,4,...,\gridwidth} { \draw[gray!85, line width=0.4pt] (\x,0) -- (\x,\gridheight); }
+    \foreach \y in {0,4,...,\gridheight} { \draw[gray!85, line width=0.4pt] (0,\y) -- (\gridwidth,\y); }
+  \end{tikzpicture}%
+  \endgroup
 }
 
 \newcommand{\remainingHeight}{%

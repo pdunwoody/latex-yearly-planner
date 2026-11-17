@@ -20,6 +20,7 @@
 \usepackage{leading}
 \usepackage{pgffor}
 \usepackage{hyperref}
+\usepackage{letltxmacro}
 \usepackage{marginnote}
 \usepackage{adjustbox}
 \usepackage{multido}
@@ -44,6 +45,23 @@
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \parindent=0pt
 \fboxsep0pt
+
+{{- if .Cfg.SplitByMonth}}
+% One PDF per month: a link to a page that lives in another month's file
+% (registered below by \myRemoteTarget) opens that file at that page.
+\makeatletter
+\newcommand{\myRemoteTarget}[2]{\@namedef{myRemote@#1}{#2}}
+\LetLtxMacro\myLocalHyperlink\hyperlink
+\DeclareRobustCommand*{\hyperlink}[2]{%
+  \ifcsname myRemote@#1\endcsname
+    \hyper@linkfile{#2}{\@nameuse{myRemote@#1}}{#1}%
+  \else
+    \myLocalHyperlink{#1}{#2}%
+  \fi
+}
+\makeatother
+{{.CrossMonthLinks}}
+{{- end}}
 
 \begin{document}
 

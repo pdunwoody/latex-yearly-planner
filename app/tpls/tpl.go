@@ -54,13 +54,16 @@ func New() Tpl {
 	}
 }
 
-func (t Tpl) Document(wr io.Writer, cfg config.Config) error {
+// Document renders the root .tex file. crossMonthLinks is the preamble table
+// produced by compose.CrossMonthLinks (empty for a whole-year build).
+func (t Tpl) Document(wr io.Writer, cfg config.Config, crossMonthLinks string) error {
 	type pack struct {
-		Cfg   config.Config
-		Pages []config.Page
+		Cfg             config.Config
+		Pages           []config.Page
+		CrossMonthLinks string
 	}
 
-	data := pack{Cfg: cfg, Pages: cfg.Pages}
+	data := pack{Cfg: cfg, Pages: cfg.Pages, CrossMonthLinks: crossMonthLinks}
 	if err := t.tpl.ExecuteTemplate(wr, "document.tpl", data); err != nil {
 		return fmt.Errorf("execute template: %w", err)
 	}

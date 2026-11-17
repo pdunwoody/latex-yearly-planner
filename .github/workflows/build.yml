@@ -1,6 +1,7 @@
 name: "Build all PDFs"
 on:
   push:
+  workflow_dispatch:
 jobs:
   build-pdfs:
     runs-on: ubuntu-latest
@@ -8,15 +9,53 @@ jobs:
       matrix:
         build-output: ["pdf-all", "pdf-next"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v19
       - name: Build PDFs
         run: nix build .#${{ matrix.build-output }}
       - name: Copy PDFs
         run: cp result/*.pdf .
       - name: Output PDFs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: result
+          name: result-${{ matrix.build-output }}
           path: ./*.pdf
+          if-no-files-found: error
+
+  # The Supernote Manta planners as one PDF per month (see monthly.sh),
+  # for this year and next. Each layout/year is its own downloadable artifact;
+  # unzip it into one folder on the device so the cross-month links resolve.
+  build-monthly-pdfs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        year-offset: [0, 1]
+        layout:
+          - name: breadcrumb
+            cfg: cfg/base.yaml,cfg/template_breadcrumb.yaml,cfg/paul_breadcrumb_manta.yaml
+          - name: mos
+            cfg: cfg/base.yaml,cfg/template_months_on_side.yaml,cfg/paul_mos_manta.yaml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Install XeLaTeX
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            texlive-xetex texlive-latex-extra texlive-fonts-recommended
+      - name: Pick year
+        run: echo "PLANNER_YEAR=$(( $(date +%Y) + ${{ matrix.year-offset }} ))" >> "$GITHUB_ENV"
+      - name: Build monthly PDFs
+        env:
+          CFG: ${{ matrix.layout.cfg }}
+          OUTDIR: monthly
+        run: ./monthly.sh
+      - name: Output monthly PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-${{ matrix.layout.name }}-${{ env.PLANNER_YEAR }}
+          path: monthly/*.pdf
           if-no-files-found: error

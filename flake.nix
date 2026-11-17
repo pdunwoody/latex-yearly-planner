@@ -48,6 +48,7 @@
               ifmtarg
               extsizes
               dashrule
+              letltxmacro
               ;
           })
         ];

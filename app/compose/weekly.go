@@ -11,6 +11,10 @@ func Weekly(cfg config.Config, tpls []string) (page.Modules, error) {
 	year := cal.NewYear(cfg.WeekStart, cfg.Year)
 
 	for _, week := range year.Weeks {
+		if !weekIncluded(cfg, week) {
+			continue
+		}
+
 		modules = append(modules, page.Module{
 			Cfg: cfg,
 			Tpl: tpls[0],
@@ -28,4 +32,19 @@ func Weekly(cfg config.Config, tpls []string) (page.Modules, error) {
 	}
 
 	return modules, nil
+}
+
+// weekIncluded keeps a week when any of its days falls in the month being built.
+func weekIncluded(cfg config.Config, week *cal.Week) bool {
+	if !cfg.SplitByMonth() {
+		return true
+	}
+
+	for _, day := range week.Days {
+		if day.Time.Year() == cfg.Year && cfg.IncludesMonth(day.Time.Month()) {
+			return true
+		}
+	}
+
+	return false
 }

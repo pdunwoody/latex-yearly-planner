@@ -16,6 +16,10 @@ func Quarterly(cfg config.Config, tpls []string) (page.Modules, error) {
 	}
 
 	for _, quarter := range year.Quarters {
+		if !quarterIncluded(cfg, quarter) {
+			continue
+		}
+
 		modules = append(modules, page.Module{
 			Cfg: cfg,
 			Tpl: tpls[0],
@@ -33,4 +37,14 @@ func Quarterly(cfg config.Config, tpls []string) (page.Modules, error) {
 	}
 
 	return modules, nil
+}
+
+func quarterIncluded(cfg config.Config, quarter *cal.Quarter) bool {
+	for _, month := range quarter.Months {
+		if cfg.IncludesMonth(month.Month) {
+			return true
+		}
+	}
+
+	return false
 }

@@ -12,6 +12,10 @@ func Monthly(cfg config.Config, tpls []string) (page.Modules, error) {
 
 	for _, quarter := range year.Quarters {
 		for _, month := range quarter.Months {
+			if !cfg.IncludesMonth(month.Month) {
+				continue
+			}
+
 			modules = append(modules, page.Module{
 				Cfg: cfg,
 				Tpl: tpls[0],

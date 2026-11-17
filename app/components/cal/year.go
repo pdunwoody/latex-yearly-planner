@@ -87,3 +87,35 @@ func (y Year) SideMonths(sel ...time.Month) []header.CellItem {
 func (y Year) HeadingMOS() string {
 	return tex.ResizeBoxW(`\myLenHeaderResizeBox`, tex.Hypertarget("Calendar", strconv.Itoa(y.Number)))
 }
+
+// PageRef is a hyperlink target together with the month whose pages hold it.
+type PageRef struct {
+	Ref   string
+	Month time.Month
+}
+
+// MonthAndDayRefs lists the targets of every monthly page and of every daily
+// page (once per prefix, e.g. "" for the day itself, "More" for its notes).
+func (y Year) MonthAndDayRefs(dayPrefixes ...string) []PageRef {
+	out := make([]PageRef, 0, 12+366*len(dayPrefixes))
+
+	for _, quarter := range y.Quarters {
+		for _, month := range quarter.Months {
+			out = append(out, PageRef{Ref: month.Month.String(), Month: month.Month})
+
+			for _, week := range month.Weeks {
+				for _, day := range week.Days {
+					if day.Time.IsZero() {
+						continue
+					}
+
+					for _, prefix := range dayPrefixes {
+						out = append(out, PageRef{Ref: day.ref(prefix), Month: month.Month})
+					}
+				}
+			}
+		}
+	}
+
+	return out
+}

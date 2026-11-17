@@ -12,6 +12,12 @@ func NotesIndexed(cfg config.Config, tpls []string) (page.Modules, error) {
 	year := cal.NewYear(cfg.WeekStart, cfg.Year)
 	modules := make(page.Modules, 0, 1)
 
+	// The indexed notes section spans the whole year, so it is left out of
+	// per-month files rather than duplicated into each of them.
+	if cfg.SplitByMonth() {
+		return modules, nil
+	}
+
 	for idx, indexPage := range index.Pages {
 		modules = append(modules, page.Module{
 			Cfg: cfg,

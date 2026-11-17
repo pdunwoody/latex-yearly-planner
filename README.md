@@ -45,6 +45,29 @@ If you encounter any problems related to '.sty' files you likely need to
   your favorite search engine should get you on track to resolving the
    dependency issues. All the best!
 
+### One PDF per month
+
+A whole-year planner with daily pages is a single PDF of 700+ pages, and every
+handwritten stroke on it lands in one annotation file on the device. To keep each
+file small (and limit the damage if one gets corrupted), build twelve monthly
+files instead:
+
+<code>PLANNER_YEAR=2027 \
+CFG="cfg/base.yaml,cfg/template_breadcrumb.yaml,cfg/paul_breadcrumb_manta.yaml" \
+./monthly.sh</code>
+
+This writes `monthly/planner-2027-01.pdf` … `monthly/planner-2027-12.pdf`. Each
+file holds the annual overview, that month's calendar and that month's daily
+pages. Links that point into another month (the annual page, the prev/next month
+in the header, the side month tabs, the day before the 1st or after the last)
+are written as links to the other month's file, so copy all twelve into the
+same folder and keep their names. Set `NAME` to change the `planner` prefix,
+`MONTHS="11 12"` to build only some months, and `OUTDIR` for the destination.
+
+Under the hood this is `PLANNER_MONTH=1..12` (plus `PLANNER_SPLIT_PREFIX`) on a
+normal build; the title page and the year-wide notes section are left out of
+monthly files.
+
 ### Alternative install
 
 Instead of installing the dependencies manually, this repository is defined as a Nix flake which specifies fixed versions of all the required dependencies. 

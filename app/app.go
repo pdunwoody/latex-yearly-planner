@@ -55,7 +55,7 @@ func action(c *cli.Context) error {
 
 	t := tpls.New()
 
-	if err = t.Document(wr, cfg); err != nil {
+	if err = t.Document(wr, cfg, compose.CrossMonthLinks(cfg)); err != nil {
 		return fmt.Errorf("tex document: %w", err)
 	}
 

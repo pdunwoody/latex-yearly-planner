@@ -13,7 +13,9 @@ import (
 type Config struct {
 	Debug Debug
 
-	Year                int `env:"PLANNER_YEAR"`
+	Year                int    `env:"PLANNER_YEAR"`
+	Month               int    `env:"PLANNER_MONTH"`
+	SplitPrefix         string `env:"PLANNER_SPLIT_PREFIX"`
 	WeekStart           time.Weekday
 	Dotted              bool
 	CalAfterSchedule    bool
@@ -147,5 +149,31 @@ func New(pathConfigs ...string) (Config, error) {
 		cfg.Year = time.Now().Year()
 	}
 
+	if cfg.Month < 0 || cfg.Month > 12 {
+		return cfg, fmt.Errorf("month must be between 1 and 12 (or 0 for the whole year), got %d", cfg.Month)
+	}
+
+	if cfg.SplitPrefix == "" {
+		cfg.SplitPrefix = "planner"
+	}
+
 	return cfg, nil
+}
+
+// SplitByMonth reports whether this build produces a single month of the year
+// (PLANNER_MONTH=1..12) instead of the whole year.
+func (c Config) SplitByMonth() bool {
+	return c.Month != 0
+}
+
+// IncludesMonth reports whether pages of the given month belong in this build.
+func (c Config) IncludesMonth(month time.Month) bool {
+	return c.Month == 0 || time.Month(c.Month) == month
+}
+
+// MonthFile is the file name of the PDF holding the given month when the
+// planner is split into one file per month. Cross-month links point to it,
+// so it must match the names produced by the build script.
+func (c Config) MonthFile(month time.Month) string {
+	return fmt.Sprintf("%s-%d-%02d.pdf", c.SplitPrefix, c.Year, int(month))
 }

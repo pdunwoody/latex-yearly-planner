@@ -17,6 +17,10 @@ func DailyStuff(prefix, leaf string) func(cfg config.Config, tpls []string) (pag
 
 		for _, quarter := range year.Quarters {
 			for _, month := range quarter.Months {
+				if !cfg.IncludesMonth(month.Month) {
+					continue
+				}
+
 				for _, week := range month.Weeks {
 					for _, day := range week.Days {
 						if day.Time.IsZero() {

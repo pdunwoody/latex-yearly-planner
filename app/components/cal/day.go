@@ -55,29 +55,14 @@ func (d Day) WeekLink() string {
 	return hyper.Link(d.ref(), strconv.Itoa(d.Time.Day())+", "+d.Time.Weekday().String())
 }
 
-func (d Day) Breadcrumb(prefix string, leaf string, shorten bool, quarterly bool) string {
-	wpref := ""
-	_, wn := d.Time.ISOWeek()
-	if wn > 50 && d.Time.Month() == time.January {
-		wpref = "fw"
-	}
-
+func (d Day) Breadcrumb(prefix string, leaf string, shorten bool, quarterly bool, weekly bool) string {
 	dayLayout := "Monday, 2"
 	if shorten {
 		dayLayout = "Mon, 2"
 	}
 
-	dayItem := header.NewTextItem(d.Time.Format(dayLayout)).RefText(d.Time.Format(time.RFC3339))
-	items := header.Items{
-		header.NewIntItem(d.Time.Year()),
-	}
-
-	if quarterly {
-		items = append(items, header.NewTextItem("Q"+strconv.Itoa(int(math.Ceil(float64(d.Time.Month())/3.)))))
-	}
-
-	items = append(items, header.NewMonthItem(d.Time.Month()).Shorten(shorten))
-	items = append(items, header.NewTextItem("Week "+strconv.Itoa(wn)).RefPrefix(wpref))
+	dayItem := header.NewTextItem(d.Time.Format(dayLayout)).RefText(d.Time.Format(time.RFC3339)).Bold(true)
+	items := d.breadcrumbHead(shorten, quarterly, weekly)
 
 	if len(leaf) > 0 {
 		items = append(items, dayItem, header.NewTextItem(leaf).RefText(prefix+d.ref()).Ref(true))
@@ -88,24 +73,101 @@ func (d Day) Breadcrumb(prefix string, leaf string, shorten bool, quarterly bool
 	return items.Table(true)
 }
 
+// SpanBreadcrumb is the header of a page shared by several consecutive days
+// (e.g. a combined weekend page): every day is a link target on that page.
+func SpanBreadcrumb(days Days, quarterly bool, weekly bool) string {
+	first := *days[0]
+	group := make([]header.Item, 0, len(days))
+
+	for _, day := range days {
+		group = append(group, header.NewTextItem(day.Time.Format("Monday, 2")).RefText(day.ref()).Bold(true).Ref(true))
+	}
+
+	items := first.breadcrumbHead(false, quarterly, weekly)
+	items = append(items, header.NewItemsGroup(group...).Delim(" -- "))
+
+	return items.Table(true)
+}
+
+// breadcrumbHead is the year / quarter / month / week part of a day's header.
+func (d Day) breadcrumbHead(shorten bool, quarterly bool, weekly bool) header.Items {
+	items := header.Items{
+		header.NewIntItem(d.Time.Year()),
+	}
+
+	if quarterly {
+		items = append(items, header.NewTextItem("Q"+strconv.Itoa(int(math.Ceil(float64(d.Time.Month())/3.)))))
+	}
+
+	items = append(items, header.NewMonthItem(d.Time.Month()).Shorten(shorten))
+
+	if weekly {
+		wpref := ""
+		_, wn := d.Time.ISOWeek()
+		if wn > 50 && d.Time.Month() == time.January {
+			wpref = "fw"
+		}
+
+		items = append(items, header.NewTextItem("Week "+strconv.Itoa(wn)).RefPrefix(wpref))
+	}
+
+	return items
+}
+
 func (d Day) LinkLeaf(prefix, leaf string) string {
 	return hyper.Link(prefix+d.ref(), leaf)
 }
 
 func (d Day) PrevNext(prefix string) header.Items {
+	return d.PrevNextSkipping(prefix, nil)
+}
+
+// PrevNextSkipping links to the nearest earlier and later day of the same
+// year that has a page with this prefix; skip reports days without one.
+func (d Day) PrevNextSkipping(prefix string, skip func(Day) bool) header.Items {
 	items := header.Items{}
 
-	if d.PrevExists() {
-		prev := d.Prev()
+	if prev, ok := d.neighbour(-1, skip); ok {
 		items = append(items, header.NewTextItem(prev.Time.Format("Mon, 2")).RefText(prefix+prev.ref()))
 	}
 
-	if d.NextExists() {
-		next := d.Next()
+	if next, ok := d.neighbour(1, skip); ok {
 		items = append(items, header.NewTextItem(next.Time.Format("Mon, 2")).RefText(prefix+next.ref()))
 	}
 
 	return items
+}
+
+// SpanPrevNext links to the day before first and the day after last.
+func SpanPrevNext(first, last Day) header.Items {
+	items := header.Items{}
+
+	if first.PrevExists() {
+		prev := first.Prev()
+		items = append(items, header.NewTextItem(prev.Time.Format("Mon, 2")).RefText(prev.ref()))
+	}
+
+	if last.NextExists() {
+		next := last.Next()
+		items = append(items, header.NewTextItem(next.Time.Format("Mon, 2")).RefText(next.ref()))
+	}
+
+	return items
+}
+
+func (d Day) neighbour(step int, skip func(Day) bool) (Day, bool) {
+	for n := d.Add(step); n.Time.Year() == d.Time.Year(); n = n.Add(step) {
+		if skip == nil || !skip(n) {
+			return n, true
+		}
+	}
+
+	return Day{}, false
+}
+
+// IsWeekend reports whether the day is a Saturday or a Sunday.
+func (d Day) IsWeekend() bool {
+	return d.Time.Weekday() == time.Saturday || d.Time.Weekday() == time.Sunday
 }
 
 func (d Day) Next() Day {

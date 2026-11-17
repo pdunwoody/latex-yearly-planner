@@ -22,6 +22,9 @@ type Config struct {
 	ClearTopRightCorner bool
 	AMPMTime            bool
 	AddLastHalfHour     bool
+	// CombineWeekend puts Saturday and Sunday on one shared daily page
+	// (the daily block's second template) and drops their notes/reflect pages.
+	CombineWeekend bool
 
 	Pages Pages
 

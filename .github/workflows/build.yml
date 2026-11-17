@@ -22,7 +22,7 @@ jobs:
           path: ./*.pdf
           if-no-files-found: error
 
-  # The Supernote Manta planners as one PDF per month (see monthly.sh),
+  # The Supernote Manta planner as one PDF per month (see monthly.sh),
   # for this year and next. Each layout/year is its own downloadable artifact;
   # unzip it into one folder on the device so the cross-month links resolve.
   build-monthly-pdfs:
@@ -34,8 +34,6 @@ jobs:
         layout:
           - name: breadcrumb
             cfg: cfg/base.yaml,cfg/template_breadcrumb.yaml,cfg/paul_breadcrumb_manta.yaml
-          - name: mos
-            cfg: cfg/base.yaml,cfg/template_months_on_side.yaml,cfg/paul_mos_manta.yaml
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

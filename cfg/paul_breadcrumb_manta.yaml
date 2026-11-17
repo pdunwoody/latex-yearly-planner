@@ -1,4 +1,5 @@
 ampmtime: true
+combineweekend: true
 
 layout:
   paper:
@@ -47,6 +48,7 @@ pages:
       - funcname: daily
         tpls:
           - paul_breadcrumb_05_daily.tpl
+          - paul_breadcrumb_05_weekend.tpl
 
   - name: daily_notes
     renderblocks:
